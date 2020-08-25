@@ -12,3 +12,4 @@ crate-type = ["cdylib"]
 [dependencies]
 yew = "^0.17"
 wasm-bindgen = "^0.2"
+pulldown-cmark = "^0.7"
