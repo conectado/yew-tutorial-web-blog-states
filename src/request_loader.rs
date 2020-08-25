@@ -39,8 +39,8 @@ impl<T: Displayer<U> + 'static, U: From<Text> + 'static> Component for RequestLo
     }
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
-        let FetchMessage::Loaded(value) = msg;
-        self.display_value = Some(value);
+        let FetchMessage::Loaded(text) = msg;
+        self.display_value = Some(text);
         true
     }
 
