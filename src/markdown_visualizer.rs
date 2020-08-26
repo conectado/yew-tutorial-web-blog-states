@@ -1,6 +1,11 @@
+use crate::request_loader::Displayer;
+use crate::request_loader::RequestLoader;
+use anyhow::Error;
 use pulldown_cmark as pc;
-use yew::prelude::*;
-use yew::web_sys;
+use yew::html;
+use yew::{web_sys, Html};
+
+pub type BlogDisplayerComponent = RequestLoader<BlogDisplayer, Result<String, Error>>;
 
 fn create_markdown_container() -> web_sys::Element {
     let window = web_sys::window().expect("Can't find window");
@@ -10,7 +15,7 @@ fn create_markdown_container() -> web_sys::Element {
     div
 }
 
-pub fn view_markdown(value: &str) -> Html {
+fn view_markdown(value: &str) -> Html {
     let parser = pc::Parser::new(value);
     let mut html_output = String::new();
     pc::html::push_html(&mut html_output, parser);
@@ -21,4 +26,28 @@ pub fn view_markdown(value: &str) -> Html {
 
     let node = web_sys::Node::from(div);
     Html::VRef(node)
+}
+
+pub struct BlogDisplayer;
+
+impl Displayer<Result<String, Error>> for BlogDisplayer {
+    fn display(text: &Option<Result<String, Error>>) -> Html {
+        html! {
+            <div style="padding: 1em; word-break: break-word" class="container bg-dark">
+                {
+                    match &text {
+                        Some(result) => match result {
+                            Ok(value) => html! {
+                                <div style="padding: 1em; word-break: break-word" class="text-white container markdown-body">
+                                    {view_markdown(value)}
+                                </div>
+                            },
+                            _ => html! { <p>{"error"}</p> },
+                        },
+                        None => html! {{"Loading..."}},
+                    }
+                }
+            </div>
+        }
+    }
 }

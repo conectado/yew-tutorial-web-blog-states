@@ -1,15 +1,19 @@
-use crate::markdown_visualizer::view_markdown;
-use anyhow::Error;
 use http::{Request, Response};
+use yew::format::Text;
 use yew::prelude::*;
 use yew::services::{fetch::FetchTask, FetchService};
 use yew::{format::Nothing, html, Component, ComponentLink, Html, ShouldRender};
 
-pub struct RequestLoader {
+pub struct RequestLoader<T: Displayer<U> + 'static, U: From<Text> + 'static> {
     props: RequestLoaderProps,
+    phantom: std::marker::PhantomData<T>,
     fetch_task: FetchTask,
-    display_value: Option<Result<String, Error>>,
+    display_value: Option<U>,
     link: ComponentLink<Self>,
+}
+
+pub trait Displayer<U> {
+    fn display(value: &Option<U>) -> Html;
 }
 
 #[derive(Properties, Debug, Clone, PartialEq)]
@@ -17,18 +21,19 @@ pub struct RequestLoaderProps {
     pub url: String,
 }
 
-pub enum FetchMessage {
-    Loaded(Result<String, Error>),
+pub enum FetchMessage<T> {
+    Loaded(T),
 }
 
-impl Component for RequestLoader {
+impl<T: Displayer<U> + 'static, U: From<Text> + 'static> Component for RequestLoader<T, U> {
     type Properties = RequestLoaderProps;
-    type Message = FetchMessage;
+    type Message = FetchMessage<U>;
 
     fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self {
         let fetch_task = fetch_url(&props.url, &link);
         RequestLoader {
             props,
+            phantom: std::marker::PhantomData,
             fetch_task,
             display_value: None,
             link,
@@ -55,23 +60,19 @@ impl Component for RequestLoader {
     fn view(&self) -> Html {
         html! {
             {
-                match &self.display_value {
-                    Some(response) => match response {
-                        Ok(value) => view_markdown(value),
-                        Error => html!{{"Error!"}},
-                    },
-                    None => html!{{"Loading..."}}
-                }
+                T::display(&self.display_value)
             }
         }
     }
 }
 
-fn fetch_url(url: &str, link: &ComponentLink<RequestLoader>) -> FetchTask {
+fn fetch_url<T: Displayer<U>, U: From<Text>>(
+    url: &str,
+    link: &ComponentLink<RequestLoader<T, U>>,
+) -> FetchTask {
     let get_req = Request::get(url).body(Nothing).unwrap();
-    let callback = link.callback(|response: Response<Result<String, Error>>| {
-        FetchMessage::Loaded(response.into_body())
-    });
+    let callback =
+        link.callback(|response: Response<U>| FetchMessage::Loaded(response.into_body()));
 
     FetchService::fetch(get_req, callback).unwrap()
 }
