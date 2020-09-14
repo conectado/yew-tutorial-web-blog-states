@@ -12,10 +12,6 @@ pub struct RequestLoader {
     link: ComponentLink<Self>,
 }
 
-pub trait Displayer {
-    fn display(text: &Option<String>) -> Html;
-}
-
 #[derive(Properties, Debug, Clone, PartialEq)]
 pub struct RequestLoaderProps {
     pub url: String,
@@ -30,10 +26,10 @@ impl Component for RequestLoader {
     type Message = FetchMessage;
 
     fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self {
-        let _fetch_task = fetch_article_list(&props.url, &link);
+        let fetch_task = fetch_url(&props.url, &link);
         RequestLoader {
             props,
-            fetch_task: _fetch_task,
+            fetch_task,
             display_value: None,
             link,
         }
@@ -49,7 +45,7 @@ impl Component for RequestLoader {
         if self.props != props {
             self.display_value = None;
             self.props = props;
-            self.fetch_task = fetch_article_list(&self.props.url, &self.link);
+            self.fetch_task = fetch_url(&self.props.url, &self.link);
             true
         } else {
             false
@@ -71,7 +67,7 @@ impl Component for RequestLoader {
     }
 }
 
-fn fetch_article_list(url: &str, link: &ComponentLink<RequestLoader>) -> FetchTask {
+fn fetch_url(url: &str, link: &ComponentLink<RequestLoader>) -> FetchTask {
     let get_req = Request::get(url).body(Nothing).unwrap();
     let callback = link.callback(|response: Response<Result<String, Error>>| {
         FetchMessage::Loaded(response.into_body())
