@@ -1,6 +1,5 @@
 use pulldown_cmark as pc;
 use yew::prelude::*;
-use yew::virtual_dom::VNode;
 use yew::web_sys;
 
 pub struct MarkdownVisualizer;
@@ -46,5 +45,5 @@ fn view_markdown(value: &str) -> Html {
     div.set_inner_html(&html_output);
 
     let node = web_sys::Node::from(div);
-    VNode::VRef(node)
+    Html::VRef(node)
 }
