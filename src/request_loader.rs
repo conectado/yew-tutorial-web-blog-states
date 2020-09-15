@@ -6,7 +6,6 @@ use yew::{format::Nothing, html, Component, ComponentLink, Html, ShouldRender};
 
 pub struct RequestLoader<T: Displayer<U> + 'static, U: From<Text> + 'static> {
     props: RequestLoaderProps,
-    phantom: std::marker::PhantomData<T>,
     fetch_task: FetchTask,
     display_value: Option<U>,
     link: ComponentLink<Self>,
@@ -33,7 +32,6 @@ impl<T: Displayer<U> + 'static, U: From<Text> + 'static> Component for RequestLo
         let fetch_task = fetch_url(&props.url, &link);
         RequestLoader {
             props,
-            phantom: std::marker::PhantomData,
             fetch_task,
             display_value: None,
             link,
