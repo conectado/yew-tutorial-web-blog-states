@@ -11,6 +11,7 @@ mod markdown_preview_list;
 mod markdown_visualizer;
 mod request_loader;
 mod root;
+mod routes;
 
 #[wasm_bindgen(start)]
 pub fn run_app() {

@@ -2,9 +2,11 @@ use crate::article_list::Articles;
 use crate::markdown_visualizer::BlogDisplayerComponent;
 use crate::request_loader::Displayer;
 use crate::request_loader::RequestLoader;
+use crate::routes::AppRoute;
 use anyhow::Error;
 use yew::format::Json;
 use yew::prelude::*;
+use yew_router::components::RouterAnchor;
 
 pub type BlogPreviewListDisplayerComponent =
     RequestLoader<BlogPreviewListDisplayer, Json<Result<Articles, Error>>>;
@@ -24,6 +26,9 @@ impl Displayer<Json<Result<Articles, Error>>> for BlogPreviewListDisplayer {
                                         <div style="display: block; overflow: hidden; ">
                                             <BlogDisplayerComponent  url={("/articles/".to_string() + item)} />
                                         </div>
+                                        <div class="text-right" style="display: block; margin: 1em; font-size: 1.1em;">
+                                            <RouterAnchor<AppRoute>  route={AppRoute::ViewPost(item.clone())}>{"See more..."}</RouterAnchor<AppRoute>>
+                                        </div>
                                     </div>
                                 }
                             })
@@ -32,7 +37,7 @@ impl Displayer<Json<Result<Articles, Error>>> for BlogPreviewListDisplayer {
                 }
                 _ => html! {<p>{"Error"}</p>},
             },
-            None => html! {<p>{"Loading"}</p>},
+            None => html! {<p>{"Loading.."}</p>},
         }
     }
 }
