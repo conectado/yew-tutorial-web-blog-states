@@ -2,8 +2,17 @@ use crate::request_loader::Displayer;
 use crate::request_loader::RequestLoader;
 use anyhow::Error;
 use pulldown_cmark as pc;
+use wasm_bindgen::prelude::*;
 use yew::html;
 use yew::{web_sys, Html};
+
+#[wasm_bindgen]
+extern "C" {
+    type hljs;
+
+    #[wasm_bindgen(static_method_of = hljs)]
+    pub fn highlightBlock(block: JsValue);
+}
 
 pub type BlogDisplayerComponent = RequestLoader<BlogDisplayer, Result<String, Error>>;
 
@@ -23,6 +32,10 @@ fn view_markdown(value: &str) -> Html {
     let div = create_markdown_container();
 
     div.set_inner_html(&html_output);
+    let code_blocks = div.query_selector_all("pre code").unwrap();
+    for i in 0..code_blocks.length() {
+        hljs::highlightBlock(JsValue::from(code_blocks.get(i).unwrap()));
+    }
 
     let node = web_sys::Node::from(div);
     Html::VRef(node)
