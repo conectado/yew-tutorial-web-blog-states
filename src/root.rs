@@ -1,6 +1,10 @@
 use crate::constants;
 use crate::markdown_preview_list::BlogPreviewListDisplayerComponent;
+use crate::markdown_visualizer::BlogDisplayerComponent;
+use crate::routes::AppRoute;
 use yew::{html, Component, ComponentLink, Html, ShouldRender};
+use yew_router::components::RouterAnchor;
+use yew_router::prelude::*;
 
 pub struct Root;
 
@@ -24,7 +28,28 @@ impl Component for Root {
         html! {
             <body>
                 <div class="text-white" style="overflow: auto; position: fixed; height: 100%; width: 100%; background-color: black;">
-                        <BlogPreviewListDisplayerComponent url=constants::ARTICLE_LIST_URI/>
+                    <div class="bg-dark sticky-top">
+                        <div class="container" style="display: inline">
+                            <RouterAnchor<AppRoute> route={AppRoute::List}>
+                                <i class="fas fa-home" style="font-size: 2em; color: white;"></i>
+                            </RouterAnchor<AppRoute>>
+                        </div>
+                        <h3 class="text-center font-weight-bold container" style="padding-top: 0.5em; padding-bottom: 0.5em; display: inline flow-root;">
+                            {"Taping Memory"}
+                        </h3>
+                    </div>
+                    <Router<AppRoute, ()>
+                        render = Router::render(move |switch: AppRoute|
+                            match switch {
+                                AppRoute::ViewPost(article) => html! {
+                                    <BlogDisplayerComponent url={format!("{}/{}", constants::ARTICLES_PATH,  &article[..])}/>
+                                },
+                                AppRoute::List => html! {
+                                    <BlogPreviewListDisplayerComponent url=constants::ARTICLE_LIST_URI/>
+                                },
+                            }
+                        )
+                    />
                 </div>
             </body>
         }
