@@ -1,0 +1,9 @@
+{
+  "name": "blog",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "wasm-pack build --target web --out-name wasm --out-dir ./static/build && cargo build --release"
+  }
+}
